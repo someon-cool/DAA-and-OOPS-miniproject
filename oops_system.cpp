@@ -1,12 +1,12 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <string>
 
 using namespace std;
 
 /* -------------------- PRODUCT CLASS -------------------- */
-extern void quickSort(vector<Product>& products, int low, int high);
-extern int binarySearch(vector<Product>& products, int targetID);
+
 class Product {
 private:
     int productID;
@@ -50,6 +50,11 @@ public:
     }
 };
 
+/* -------------------- ALGORITHM DECLARATIONS -------------------- */
+
+extern void quickSort(vector<Product>& products, int low, int high);
+extern int binarySearch(vector<Product>& products, int targetID);
+
 /* -------------------- USER BASE CLASS -------------------- */
 
 class User {
@@ -61,10 +66,6 @@ public:
     User(int id, string n) {
         userID = id;
         name = n;
-    }
-
-    void displayUser() {
-        cout << "User ID: " << userID << " Name: " << name << endl;
     }
 };
 
@@ -81,6 +82,7 @@ public:
     }
 
     void viewCart() {
+
         if(items.empty()) {
             cout << "Cart is empty\n";
             return;
@@ -88,17 +90,16 @@ public:
 
         cout << "\nCart Items\n";
 
-        for(Product &p : items) {
+        for(Product &p : items)
             p.display();
-        }
     }
 
     double calculateTotal() {
+
         double total = 0;
 
-        for(Product &p : items) {
+        for(Product &p : items)
             total += p.getPrice();
-        }
 
         return total;
     }
@@ -119,6 +120,7 @@ private:
 
 public:
     Order(int id, vector<Product> cartItems, double total) {
+
         orderID = id;
         items = cartItems;
         totalAmount = total;
@@ -126,19 +128,18 @@ public:
     }
 
     void displayOrder() {
-        cout << "\nOrder ID: " << orderID << endl;
-        cout << "Products:\n";
 
-        for(Product &p : items) {
+        cout << "\nOrder ID: " << orderID << endl;
+
+        for(Product &p : items)
             p.display();
-        }
 
         cout << "Total Amount: " << totalAmount << endl;
         cout << "Status: " << status << endl;
     }
 };
 
-/* -------------------- GLOBAL DATA STORAGE -------------------- */
+/* -------------------- GLOBAL STORAGE -------------------- */
 
 vector<Product> products;
 queue<Order> orderQueue;
@@ -148,6 +149,7 @@ queue<Order> orderQueue;
 class Admin : public User {
 
 public:
+
     Admin(int id, string name) : User(id,name) {}
 
     void addProduct() {
@@ -182,20 +184,23 @@ public:
             return;
         }
 
-        cout << "\nAvailable Products\n";
+        cout << "\nProduct List\n";
 
-        for(Product &p : products) {
+        for(Product &p : products)
             p.display();
+    }
+
+    void sortProducts() {
+
+        if(products.empty()) {
+            cout << "No products available\n";
+            return;
         }
-    }
-    if(products.empty()) {
-        cout << "No products available\n";
-        return;
-    }
 
-    quickSort(products, 0, products.size() - 1);
+        quickSort(products,0,products.size()-1);
 
-    cout << "Products sorted by price\n";
+        cout << "Products sorted by price\n";
+    }
 };
 
 /* -------------------- CUSTOMER CLASS -------------------- */
@@ -216,18 +221,33 @@ public:
             return;
         }
 
-        cout << "\nProduct List\n";
+        cout << "\nProducts\n";
 
-        for(Product &p : products) {
+        for(Product &p : products)
             p.display();
-        }
+    }
+
+    void searchProduct() {
+
+        int id;
+
+        cout << "Enter Product ID: ";
+        cin >> id;
+
+        int index = binarySearch(products,id);
+
+        if(index == -1)
+            cout << "Product not found\n";
+
+        else
+            products[index].display();
     }
 
     void addToCart() {
 
         int id;
 
-        cout << "Enter Product ID to add to cart: ";
+        cout << "Enter Product ID: ";
         cin >> id;
 
         for(Product &p : products) {
@@ -251,7 +271,7 @@ public:
         vector<Product> items = cart.getItems();
 
         if(items.empty()) {
-            cout << "Cart is empty\n";
+            cout << "Cart empty\n";
             return;
         }
 
@@ -259,23 +279,10 @@ public:
 
         int orderID = orderQueue.size() + 1;
 
-        Order newOrder(orderID, items, total);
+        Order newOrder(orderID,items,total);
 
         orderQueue.push(newOrder);
 
         cout << "Order placed successfully\n";
     }
-    void searchProduct() {
-
-    int id;
-    cout << "Enter Product ID: ";
-    cin >> id;
-
-    int index = binarySearch(products, id);
-
-    if(index == -1)
-        cout << "Product not found\n";
-    else
-        products[index].display();
-}
 };
