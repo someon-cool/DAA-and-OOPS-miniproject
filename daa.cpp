@@ -1,13 +1,7 @@
 #include <vector>
 using namespace std;
 
-class Product {
-public:
-    int getID();
-    double getPrice();
-};
-
-/* ---------- QUICK SORT FOR PRODUCTS (BY PRICE) ---------- */
+/* ---------- QUICK SORT ---------- */
 
 int partition(vector<Product>& products, int low, int high) {
 
@@ -17,6 +11,7 @@ int partition(vector<Product>& products, int low, int high) {
     for(int j = low; j < high; j++) {
 
         if(products[j].getPrice() < pivot) {
+
             i++;
 
             Product temp = products[i];
@@ -36,14 +31,14 @@ void quickSort(vector<Product>& products, int low, int high) {
 
     if(low < high) {
 
-        int pi = partition(products, low, high);
+        int pi = partition(products,low,high);
 
-        quickSort(products, low, pi - 1);
-        quickSort(products, pi + 1, high);
+        quickSort(products,low,pi-1);
+        quickSort(products,pi+1,high);
     }
 }
 
-/* ---------- BINARY SEARCH (BY PRODUCT ID) ---------- */
+/* ---------- BINARY SEARCH ---------- */
 
 int binarySearch(vector<Product>& products, int targetID) {
 
