@@ -1,8 +1,9 @@
 #include <iostream>
+
 using namespace std;
 
-#include "quickmart_oops.cpp"
-#include "quickmart_daa.cpp"
+#include "oops.cpp"
+#include "daa.cpp"
 
 int main() {
 
@@ -13,7 +14,7 @@ int main() {
 
     while(true) {
 
-        cout << "\n===== QuickMart System =====\n";
+        cout << "\n===== QUICKMART SYSTEM =====\n";
         cout << "1 Admin Panel\n";
         cout << "2 Customer Panel\n";
         cout << "3 Exit\n";
@@ -22,56 +23,39 @@ int main() {
 
         if(choice == 1) {
 
-            int adminChoice;
+            int c;
 
-            cout << "\n--- Admin Menu ---\n";
-            cout << "1 Add Product\n";
+            cout << "\n1 Add Product\n";
             cout << "2 View Products\n";
             cout << "3 Sort Products\n";
 
-            cin >> adminChoice;
+            cin >> c;
 
-            if(adminChoice == 1)
-                admin.addProduct();
-
-            else if(adminChoice == 2)
-                admin.viewProducts();
-
-            else if(adminChoice == 3)
-                admin.sortProducts();
+            if(c == 1) admin.addProduct();
+            else if(c == 2) admin.viewProducts();
+            else if(c == 3) admin.sortProducts();
         }
 
         else if(choice == 2) {
 
-            int customerChoice;
+            int c;
 
-            cout << "\n--- Customer Menu ---\n";
-            cout << "1 View Products\n";
+            cout << "\n1 View Products\n";
             cout << "2 Search Product\n";
             cout << "3 Add To Cart\n";
             cout << "4 View Cart\n";
             cout << "5 Place Order\n";
 
-            cin >> customerChoice;
+            cin >> c;
 
-            if(customerChoice == 1)
-                customer.viewProducts();
-
-            else if(customerChoice == 2)
-                customer.searchProduct();
-
-            else if(customerChoice == 3)
-                customer.addToCart();
-
-            else if(customerChoice == 4)
-                customer.viewCart();
-
-            else if(customerChoice == 5)
-                customer.placeOrder();
+            if(c == 1) customer.viewProducts();
+            else if(c == 2) customer.searchProduct();
+            else if(c == 3) customer.addToCart();
+            else if(c == 4) customer.viewCart();
+            else if(c == 5) customer.placeOrder();
         }
 
-        else
-            break;
+        else break;
     }
 
     return 0;
