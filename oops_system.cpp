@@ -2,11 +2,11 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
-/* -------------------- PRODUCT CLASS -------------------- */
-
+// PRODUCT CLASS 
 class Product {
 private:
     int productID;
@@ -50,12 +50,49 @@ public:
     }
 };
 
-/* -------------------- ALGORITHM DECLARATIONS -------------------- */
+// ALGORITHM DECLARATIONS 
 
 extern void quickSort(vector<Product>& products, int low, int high);
 extern int binarySearch(vector<Product>& products, int targetID);
+extern vector<Product> greedySelectProducts(vector<Product>& products, double budget); // NEW
 
-/* -------------------- USER BASE CLASS -------------------- */
+// PAYMENT CLASSES (Abstraction + Polymorphism) 
+
+// Abstract base class — defines the contract for all payment methods
+class Payment {
+public:
+    virtual void processPayment(double amount) = 0;  // Pure virtual
+    virtual ~Payment() {}                             // Virtual destructor (good practice)
+};
+
+// Derived class 1 — UPI payment
+class UPI : public Payment {
+public:
+    void processPayment(double amount) override {
+        cout << "Processing UPI Payment of Rs." << amount << "...\n";
+        cout << "Payment Successful via UPI\n";
+    }
+};
+
+// Derived class 2 — Card payment
+class Card : public Payment {
+public:
+    void processPayment(double amount) override {
+        cout << "Processing Card Payment of Rs." << amount << "...\n";
+        cout << "Payment Successful via Card\n";
+    }
+};
+
+// Derived class 3 — Cash payment
+class Cash : public Payment {
+public:
+    void processPayment(double amount) override {
+        cout << "Processing Cash Payment of Rs." << amount << "...\n";
+        cout << "Payment Successful via Cash\n";
+    }
+};
+
+//USER BASE CLASS 
 
 class User {
 protected:
@@ -69,7 +106,7 @@ public:
     }
 };
 
-/* -------------------- CART CLASS -------------------- */
+// Cart class
 
 class Cart {
 private:
@@ -109,7 +146,7 @@ public:
     }
 };
 
-/* -------------------- ORDER CLASS -------------------- */
+// ORDER CLASS 
 
 class Order {
 private:
@@ -139,18 +176,62 @@ public:
     }
 };
 
-/* -------------------- GLOBAL STORAGE -------------------- */
-
 vector<Product> products;
 queue<Order> orderQueue;
 
-/* -------------------- ADMIN CLASS -------------------- */
+void loadProducts() {
+
+    ifstream fin("products.txt");  
+
+    if(!fin.is_open()) {
+        cout << "No saved products found. Starting fresh.\n";
+        return;
+    }
+
+    int id, quantity;
+    string name;
+    double price;
+
+    // Read one product per line until EOF
+    while(fin >> id >> name >> price >> quantity) {
+
+        Product p(id, name, price, quantity);
+        products.push_back(p);
+    }
+
+    fin.close();  
+    cout << "Products loaded from file. Total: " << products.size() << "\n";
+}
+
+void saveProducts() {
+
+    ofstream fout("products.txt");  
+
+    if(!fout.is_open()) {
+        cout << "Error: Could not open file for saving.\n";
+        return;
+    }
+
+    // Write each product as: id name price quantity
+    for(Product &p : products) {
+        fout << p.getID()       << " "
+             << p.getName()     << " "
+             << p.getPrice()    << " "
+             << p.getQuantity() << "\n";
+    }
+
+    fout.close();  // Always close the file after writing
+
+    cout << "Products saved to file.\n";
+}
+
+//admin class
 
 class Admin : public User {
 
 public:
 
-    Admin(int id, string name) : User(id,name) {}
+    Admin(int id, string name) : User(id, name) {}
 
     void addProduct() {
 
@@ -170,9 +251,11 @@ public:
         cout << "Enter Quantity: ";
         cin >> quantity;
 
-        Product p(id,name,price,quantity);
+        Product p(id, name, price, quantity);
 
         products.push_back(p);
+
+        saveProducts();  
 
         cout << "Product added successfully\n";
     }
@@ -197,13 +280,12 @@ public:
             return;
         }
 
-        quickSort(products,0,products.size()-1);
+        quickSort(products, 0, products.size() - 1);
 
         cout << "Products sorted by price\n";
     }
 };
-
-/* -------------------- CUSTOMER CLASS -------------------- */
+// Customer class
 
 class Customer : public User {
 
@@ -212,7 +294,7 @@ private:
 
 public:
 
-    Customer(int id, string name) : User(id,name) {}
+    Customer(int id, string name) : User(id, name) {}
 
     void viewProducts() {
 
@@ -234,7 +316,7 @@ public:
         cout << "Enter Product ID: ";
         cin >> id;
 
-        int index = binarySearch(products,id);
+        int index = binarySearch(products, id);
 
         if(index == -1)
             cout << "Product not found\n";
@@ -277,12 +359,63 @@ public:
 
         double total = cart.calculateTotal();
 
+        cout << "\nTotal Amount: " << total << "\n";
+
+        // --- Runtime Polymorphism: choose payment method at runtime ---
+        cout << "\nSelect Payment Method:\n";
+        cout << "1 UPI\n";
+        cout << "2 Card\n";
+        cout << "3 Cash\n";
+
+        int payChoice;
+        cin >> payChoice;
+
+        Payment* payment;                          // Base class pointer
+
+        if(payChoice == 1)      payment = new UPI();   
+        else if(payChoice == 2) payment = new Card();  
+        else                    payment = new Cash();  
+
+        payment->processPayment(total);           
+
+        delete payment;                           
+
         int orderID = orderQueue.size() + 1;
 
-        Order newOrder(orderID,items,total);
+        Order newOrder(orderID, items, total);
 
         orderQueue.push(newOrder);
 
-        cout << "Order placed successfully\n";
+        cout << "Order Placed Successfully\n";
+    }
+
+    // Greedy: suggest max products within a given budget
+    void suggestProductsUnderBudget() {
+
+        if(products.empty()) {
+            cout << "No products available\n";
+            return;
+        }
+        double budget;
+        cout << "Enter Budget: ";
+        cin >> budget;
+        vector<Product> suggested = greedySelectProducts(products, budget);
+
+        if(suggested.empty()) {
+            cout << "No products fit within your budget\n";
+            return;
+        }
+
+        cout << "\nSuggested Products:\n";
+
+        double total = 0;
+
+        for(Product &p : suggested) {
+            cout << p.getName() << " - " << p.getPrice() << "\n";
+            total += p.getPrice();
+        }
+
+        cout << "\nTotal: " << total << "\n";
+        cout << "Products selected: " << suggested.size() << "\n";
     }
 };
