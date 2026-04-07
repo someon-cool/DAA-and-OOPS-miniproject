@@ -1,7 +1,7 @@
 #include <vector>
+#include <algorithm>
 using namespace std;
 
-/* ---------- QUICK SORT ---------- */
 
 int partition(vector<Product>& products, int low, int high) {
 
@@ -13,16 +13,10 @@ int partition(vector<Product>& products, int low, int high) {
         if(products[j].getPrice() < pivot) {
 
             i++;
-
-            Product temp = products[i];
-            products[i] = products[j];
-            products[j] = temp;
+            swap(products[i], products[j]);
         }
     }
-
-    Product temp = products[i+1];
-    products[i+1] = products[high];
-    products[high] = temp;
+    swap(products[i+1], products[high]);
 
     return i + 1;
 }
@@ -31,14 +25,13 @@ void quickSort(vector<Product>& products, int low, int high) {
 
     if(low < high) {
 
-        int pi = partition(products,low,high);
+        int pi = partition(products, low, high);
 
-        quickSort(products,low,pi-1);
-        quickSort(products,pi+1,high);
+        quickSort(products, low, pi - 1);
+        quickSort(products, pi + 1, high);
     }
 }
-
-/* ---------- BINARY SEARCH ---------- */
+//binary search
 
 int binarySearch(vector<Product>& products, int targetID) {
 
@@ -60,4 +53,29 @@ int binarySearch(vector<Product>& products, int targetID) {
     }
 
     return -1;
+}
+
+//greedy algo
+
+
+vector<Product> greedySelectProducts(vector<Product>& products, double budget) {
+    vector<Product> sorted = products;
+
+    sort(sorted.begin(), sorted.end(), [](Product& a, Product& b) {
+        return a.getPrice() < b.getPrice();
+    });
+
+    vector<Product> selected;
+    double spent = 0;
+
+    for(Product& p : sorted) {
+
+        if(spent + p.getPrice() <= budget) {
+
+            selected.push_back(p);
+            spent += p.getPrice();
+        }
+    }
+
+    return selected;
 }
